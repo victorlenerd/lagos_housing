@@ -1,24 +1,30 @@
 from flask import Flask, request, render_template, jsonify
 import pickle
-import numpy as np
 import pandas as pd
+import math
 
+model = pickle.load(open('./model/model.pkl', 'rb'))
 app = Flask(__name__)
 
 @app.route('/')
 def home():
+    lng = request.args['lng']
+    lat = request.args['lat']
+    no_bed = request.args['no_bed']
+    no_bath = request.args['no_bath']
+    no_toilets = request.args['no_toilets']
+
     lekki = pd.DataFrame({
-        'lng': [6.4698],
-        'lat': [3.5852],
-        'no_bed': [1],
-        'no_toilets': [1],
-        'no_bath': [1]
+        'lng': [lng],
+        'lat': [lat],
+        'no_bed': [no_bed],
+        'no_bath': [no_bath],
+        'no_toilets': [no_toilets]
     })
-    model = pickle.load(open('./model/model.pkl', 'rb'))
     prediction = model.predict(lekki)
     cost = prediction[0]
 
-    return jsonify(price=cost)
+    return jsonify(price=round(cost))
 
 if __name__ == '__main__':
 	app.run()
